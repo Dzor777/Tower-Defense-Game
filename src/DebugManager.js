@@ -57,6 +57,10 @@ export default class DebugManager {
         // Pause / Play
         const pauseBtn = this.createButton('Pause / Play', () => {
             this.game.state.isRunning = !this.game.state.isRunning;
+            if (this.game.state.isRunning) {
+                this.game.lastTime = performance.now();
+                requestAnimationFrame(this.game.gameLoop.bind(this.game));
+            }
             console.log("Debug: Toggled Pause");
         });
         this.container.appendChild(pauseBtn);

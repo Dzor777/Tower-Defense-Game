@@ -516,6 +516,7 @@ export default class Game {
         this.state.gold -= currentCost;
         this.towers.push(new Tower(col, row));
         this.updateStatsUI();
+        this.updateUpgradeUIText();
     }
 
     updateStatsUI() {
@@ -558,6 +559,7 @@ export default class Game {
                 if (enemy.health <= 0) {
                     this.state.gold += enemy.reward || 10;
                     this.updateStatsUI();
+                    this.updateUpgradeUIText();
                     this.soundManager.playEnemyDeath();
                 } else {
                     this.state.lives -= 1;
@@ -584,9 +586,13 @@ export default class Game {
         this.renderer.clear(this.width, this.height);
         this.map.draw();
         this.towers.forEach(t => t.draw(this.renderer));
-        this.enemies.forEach(e => e.draw(this.renderer));
+        this.enemies.forEach(e => e.drawBody(this.renderer));
         this.projectiles.forEach(p => p.draw(this.renderer));
+
         if (this.state.placingTower) this.drawBuildGrid();
+
+        // Draw Health Bars LAST so they appear above the build grid
+        this.enemies.forEach(e => e.drawHealthBar(this.renderer));
         if (this.state.castleDamageFlash > 0) {
             const alpha = this.state.castleDamageFlash / 500;
             this.ctx.globalAlpha = alpha * 0.5;
@@ -615,6 +621,14 @@ export default class Game {
         if (this.isValidBuildLocation(hoverCol, hoverRow)) {
             const centerX = hoverCol * 32 + 16;
             const centerY = hoverRow * 32 + 16;
+
+            // Draw Ghost Tower to show footprint/appearance
+            this.ctx.globalAlpha = 0.5;
+            const drawSize = 48;
+            const offset = (32 - drawSize) / 2;
+            this.renderer.drawImage('basic_tower', hoverCol * 32 + offset, hoverRow * 32 + offset, drawSize, drawSize);
+            this.ctx.globalAlpha = 1.0;
+
             const currentRange = this.getCurrentRange();
             this.ctx.beginPath();
             this.ctx.arc(centerX, centerY, currentRange, 0, Math.PI * 2);
@@ -662,6 +676,7 @@ export default class Game {
         this.state.lives = 20;
         this.state.towerLevel = 1;
         this.state.damageLevel = 1;
+        this.state.rangeLevel = 1;
         this.state.maxTowers = 15 + (newLevel - 1) * 2;
 
         this.waveManager.level = newLevel;

@@ -85,14 +85,8 @@ export default class Enemy {
         }
     }
 
-    draw(renderer) {
-        const hpPercent = this.health / this.maxHealth;
+    drawBody(renderer) {
         const ctx = renderer.ctx;
-
-        ctx.fillStyle = 'red';
-        ctx.fillRect(this.x, this.y - 10, this.width, 5);
-        ctx.fillStyle = 'green';
-        ctx.fillRect(this.x, this.y - 10, this.width * hpPercent, 5);
 
         // Huge/Big get color tints if no special asset
         if (this.type === 'huge') {
@@ -107,6 +101,16 @@ export default class Enemy {
 
         renderer.drawImage(enemyAsset, this.x, this.y, this.width, this.height);
         ctx.filter = 'none';
+    }
+
+    drawHealthBar(renderer) {
+        const hpPercent = this.health / this.maxHealth;
+        const ctx = renderer.ctx;
+
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x, this.y - 10, this.width, 5);
+        ctx.fillStyle = 'green';
+        ctx.fillRect(this.x, this.y - 10, this.width * hpPercent, 5);
     }
 
     takeDamage(amount) {
